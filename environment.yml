@@ -1,0 +1,12 @@
+name: fastapi-env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12.4
+  - fastapi
+  - uvicorn
+  - postgresql
+  - pip
+  - pip:
+    - -r requirements.txt
