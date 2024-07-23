@@ -6,6 +6,8 @@ from backend.app.oauth.v2.endpoints.install import state_store, installation_sto
 from slack_sdk.oauth.installation_store import Installation
 from backend.app.core.init_settings import global_settings
 import html
+import os
+
 router = APIRouter()
 
 @router.get("/callback")
@@ -19,9 +21,9 @@ async def oauth_callback(request: Request):
       client = WebClient()  # no prepared token needed for this
       # Complete the installation by calling oauth.v2.access API method
       oauth_response = client.oauth_v2_access(
-        client_id=global_settings.slack_client_id,
-        client_secret=global_settings.slack_client_secret,
-        redirect_uri=global_settings.slack_redirect_uri,
+        client_id=os.getenv('SLACK_CLIENT_ID'),
+        client_secret=os.getenv('SLACK_CLIENT_SECRET'),
+        redirect_uri=os.getenv('SLACK_REDIRECT_URI'),
         code=code
       )
       installed_enterprise = oauth_response.get("enterprise") or {}

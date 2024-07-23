@@ -15,10 +15,10 @@ installation_store = FileInstallationStore(base_dir="./data")
 
 # Build https://slack.com/oauth/v2/authorize with sufficient query parameters
 authorize_url_generator = AuthorizeUrlGenerator(
-  client_id=global_settings.slack_client_id,
+  client_id=os.getenv('SLACK_CLIENT_ID'),
   scopes=bot_scopes,
   user_scopes=user_scopes,
-  redirect_uri=global_settings.slack_redirect_uri
+  redirect_uri=os.getenv('SLACK_REDIRECT_URI')
 )
 
 router = APIRouter()
