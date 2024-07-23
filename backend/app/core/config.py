@@ -47,7 +47,7 @@ class ProdSettings(Settings):
   ENV_MODE: str = 'prod'
 
   # Define HOST_URL based on environment mode
-  HOST_URL : str = os.getenv('HOST_URL ', '')
+  HOST_URL: str = os.getenv('HOST_URL', '')
 
 def get_settings(env_mode: str = "dev"):
   if env_mode == "dev":
