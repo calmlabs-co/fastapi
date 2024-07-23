@@ -55,7 +55,7 @@ async def add_doc_protect(request: Request, call_next):
   return response
 # Add session middleware with a custom expiration time (e.g., 30 minutes)
 app.add_middleware(SessionMiddleware, 
-           secret_key=global_settings.secret_key, 
+           secret_key=os.environ.get('SECRET_KEY'), 
            max_age=18000)  # 18000 seconds = 300 minutes
 
 # Add the routers to the FastAPI app
