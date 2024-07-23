@@ -17,15 +17,15 @@ async_engine = create_async_engine(settings.ASYNC_DATABASE_URL, echo=False, futu
 AsyncSessionLocal = sessionmaker(bind=async_engine, expire_on_commit=False, class_=AsyncSession)
 
 def get_sync_db():
-    db = SyncSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+  db = SyncSessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()
 
 async def get_async_db():
-    async with AsyncSessionLocal() as session:
-        yield session
+  async with AsyncSessionLocal() as session:
+    yield session
 
 def init_db():
-    Base.metadata.create_all(bind=sync_engine)
+  pass
