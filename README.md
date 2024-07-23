@@ -3,7 +3,7 @@
 ### Use Conda to manage environment
 `conda env create -f environment.yml`
 
-- Run locally using `python -m backend.app.main`
+- Run locally using `python runserver.py`
 
 ## 📝 Notes
 
