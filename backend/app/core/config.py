@@ -3,12 +3,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # Application settings
-    APP_NAME: str = "My App"
+    APP_NAME: str = "Ketchup"
     APP_VERSION: str = "0.1.0"
-
-    # Username and Password for login
-    USER_NAME: str = os.getenv('USER_NAME', '')
-    PASSWORD: str = os.getenv('PASSWORD', '')
 
     @property
     def DB_URL(self):
@@ -56,9 +52,9 @@ class DevSettings(Settings):
     ENV_MODE: str = 'dev'
 
     # Database settings for development
-    DEV_DB_URL: str = "sqlite:///./dev.db"
-
+    DEV_DB_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/ketchup_development"
     model_config = SettingsConfigDict(env_file=".env", extra='allow')
+
 
 class ProdSettings(Settings):
     # Environment mode: 'dev' or 'prod'

@@ -6,4 +6,4 @@ router = APIRouter()
 
 @router.get("/")
 def onboard_message():
-    return {"message": "You've been onboarded!"}
+  return {"message": "You've been onboarded!"}

@@ -3,13 +3,13 @@ from pydantic import BaseModel
 from uuid import UUID
 
 class MessageBase(BaseModel):
-    content: str
+  content: str
 
 class MessageCreate(MessageBase):
-    pass
+  pass
 
 class MessageSchema(MessageBase):
-    id: UUID
+  id: UUID
 
-    class Config:
-        from_attributes = True
+  class Config:
+    from_attributes = True
