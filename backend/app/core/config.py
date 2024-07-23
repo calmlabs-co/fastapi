@@ -1,8 +1,6 @@
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
 
-load_dotenv()
 
 class Settings(BaseSettings):
   # Application settings
@@ -38,6 +36,9 @@ class DevSettings(Settings):
   ENV_MODE: str = 'dev'
 
   # Database settings for development
+  from dotenv import load_dotenv
+
+  load_dotenv()
   model_config = SettingsConfigDict(env_file=".env", extra='allow')
 
 
