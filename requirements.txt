@@ -11,3 +11,6 @@ pydantic-settings
 greenlet
 fastapi_limiter
 aioredis
+slack_sdk
+alembic
+sqlmodel
