@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9-slim as builder
+FROM python:3.12.4-slim as builder
 
 # Set the working directory in the container to /app
 WORKDIR /app
@@ -12,7 +12,7 @@ RUN pip install --upgrade pip && \
     pip install --user -r requirements.txt
 
 # This is the second stage where we create the runtime image
-FROM python:3.9-slim
+FROM python:3.12.4-slim
 
 # Copy the dependencies from the build stage
 COPY --from=builder /root/.local /root/.local
