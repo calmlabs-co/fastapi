@@ -26,5 +26,8 @@ WORKDIR /app
 # Add current directory code to /app in the container
 ADD . /app
 
+# Command to run migrations
+RUN python migrate.py
+
 # Command to run the uvicorn server
 CMD ["python", "-m", "backend.app.main", "--mode", "prod", "--host", "0.0.0.0"]
