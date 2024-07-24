@@ -10,6 +10,27 @@ import os
 
 router = APIRouter()
 
+async def create_user_and_link_to_slack(slack_user_id: str):
+  from backend.app.models.user import User
+  from backend.app.dependencies.database import get_session
+  from sqlmodel import select
+
+  async with get_session() as session:
+    # Check if the user already exists
+    statement = select(User).where(User.slack_user_id == slack_user_id)
+    results = await session.exec(statement)
+    user = results.first()
+
+    if not user:
+      # Create a new user if it doesn't exist
+      user = User(slack_user_id=slack_user_id)
+      session.add(user)
+      await session.commit()
+      await session.refresh(user)
+
+    return user
+
+
 @router.get("/slack/callback")
 async def oauth_callback(request: Request):
   # Retrieve the auth code and state from the request params
@@ -30,10 +51,6 @@ async def oauth_callback(request: Request):
       is_enterprise_install = oauth_response.get("is_enterprise_install")
       installed_team = oauth_response.get("team") or {}
       installer = oauth_response.get("authed_user") or {}
-      print('-=-=-=-')
-      print(installer)
-      print(dir(installer))
-      print('-=-=-=-')
       incoming_webhook = oauth_response.get("incoming_webhook") or {}
       bot_token = oauth_response.get("access_token")
       # NOTE: oauth.v2.access doesn't include bot_id in response
@@ -66,9 +83,9 @@ async def oauth_callback(request: Request):
         is_enterprise_install=is_enterprise_install,
         token_type=oauth_response.get("token_type"),
       )
-
       # Store the installation
       installation_store.save(installation)
+      create_user_and_link_to_slack(installer.get("id"))
 
       return PlainTextResponse("Installation successful!")
     else:
