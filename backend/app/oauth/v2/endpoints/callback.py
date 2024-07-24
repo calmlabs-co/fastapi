@@ -10,7 +10,7 @@ import os
 
 router = APIRouter()
 
-@router.get("/callback")
+@router.get("/slack/callback")
 async def oauth_callback(request: Request):
   # Retrieve the auth code and state from the request params
   code = request.query_params.get("code")

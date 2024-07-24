@@ -23,7 +23,7 @@ authorize_url_generator = AuthorizeUrlGenerator(
 
 router = APIRouter()
 
-@router.get("/install", response_class=HTMLResponse)
+@router.get("/slack/install", response_class=HTMLResponse)
 async def oauth_start():
   # Generate a random value and store it on the server-side
   state = state_store.issue()

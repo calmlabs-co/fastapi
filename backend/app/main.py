@@ -62,8 +62,8 @@ app.add_middleware(SessionMiddleware,
 app.include_router(base.router, prefix="", tags=["main"])
 app.include_router(doc.router, prefix="", tags=["doc"])
 app.include_router(message.router, prefix="/api/v1", tags=["message"])
-app.include_router(install.router, prefix="/oauth/v2/slack", tags=["install"])
-app.include_router(callback.router, prefix="/oauth/v2/slack", tags=["callback"])
+app.include_router(install.router, prefix="/oauth/v2", tags=["install"])
+app.include_router(callback.router, prefix="/oauth/v2", tags=["callback"])
 
 from slack_sdk import WebClient
 client = WebClient()
