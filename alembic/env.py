@@ -21,6 +21,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 # from backend.app.dependencies.database import Base
 from sqlmodel import SQLModel
+from alembic import context
 from backend.app.models.message import Message
 from backend.app.models.oauth_token import OAuthToken
 from backend.app.models.user import User
@@ -33,6 +34,30 @@ target_metadata = SQLModel.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+# Define the include_name function to exclude specific tables
+def include_name(name, type_, parent_names):
+    # List of tables to exclude
+    excluded_tables = ["slack_installations", "slack_oauth_states", "slack_bots"]
+    # op.drop_index('slack_installations_idx', table_name='slack_installations')
+    # op.drop_table('slack_installations')
+    # op.drop_index('slack_bots_idx', table_name='slack_bots')
+    # op.drop_table('slack_bots')
+    # op.drop_table('slack_oauth_states')
+    # or type_ == "index"
+    if type_ == "table":
+        # Return False if the table is in the excluded list
+        if name in excluded_tables:
+            return False
+        # Check schema-qualified names as well
+        if "schema_qualified_table_name" in parent_names:
+            if parent_names["schema_qualified_table_name"] in excluded_tables:
+                return False
+        # Include all other tables
+        return parent_names["schema_qualified_table_name"] in target_metadata.tables
+    else:
+        return True
+
 
 
 def run_migrations_offline() -> None:
@@ -70,7 +95,9 @@ def run_migrations_online() -> None:
 
   with connectable.connect() as connection:
     context.configure(
-      connection=connection, target_metadata=target_metadata
+      connection=connection, 
+      target_metadata=target_metadata,
+      include_name=include_name,
     )
 
     with context.begin_transaction():
