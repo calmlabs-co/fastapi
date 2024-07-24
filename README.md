@@ -5,6 +5,12 @@
 
 - Run locally using `python runserver.py`
 
+## Migrations
+
+alembic revision --autogenerate -m "Initial migration"
+alembic upgrade head
+alembic downgrade -1
+
 ## 📝 Notes
 
 - To learn about how to use FastAPI with most of its features, you can visit the [FastAPI Documentation](https://fastapi.tiangolo.com/tutorial/)
