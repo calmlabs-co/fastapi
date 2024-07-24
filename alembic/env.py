@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+import os
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -23,6 +24,8 @@ from sqlmodel import SQLModel
 from backend.app.models.message import Message
 from backend.app.models.oauth_token import OAuthToken
 from backend.app.models.user import User
+
+from sqlmodel import create_engine
 
 target_metadata = SQLModel.metadata
 
@@ -63,11 +66,7 @@ def run_migrations_online() -> None:
   and associate a connection with the context.
 
   """
-  connectable = engine_from_config(
-    config.get_section(config.config_ini_section, {}),
-    prefix="sqlalchemy.",
-    poolclass=pool.NullPool,
-  )
+  connectable = create_engine(os.getenv('DATABASE_URL'))
 
   with connectable.connect() as connection:
     context.configure(
