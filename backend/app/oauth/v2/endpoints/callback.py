@@ -4,31 +4,20 @@ from fastapi.responses import PlainTextResponse
 from slack_sdk.web import WebClient
 from backend.app.oauth.v2.endpoints.install import state_store, installation_store
 from slack_sdk.oauth.installation_store import Installation
-from backend.app.core.init_settings import global_settings
+from backend.app.models.user import User
+from backend.app.dependencies.database import get_sync_db
+from fastapi import Depends
 import html
 import os
+from sqlmodel import inspect
 
 router = APIRouter()
 
-async def create_user_and_link_to_slack(slack_user_id: str):
-  from backend.app.models.user import User
-  from backend.app.dependencies.database import get_session
-  from sqlmodel import select
-
-  async with get_session() as session:
-    # Check if the user already exists
-    statement = select(User).where(User.slack_user_id == slack_user_id)
-    results = await session.exec(statement)
-    user = results.first()
-
-    if not user:
-      # Create a new user if it doesn't exist
-      user = User(slack_user_id=slack_user_id)
-      session.add(user)
-      await session.commit()
-      await session.refresh(user)
-
-    return user
+async def create_user_and_link_to_slack(slack_user_id: str,  db = Depends(get_sync_db)):
+  user = User(slack_user_id=slack_user_id)
+  db.add(user)
+  db.commit()
+  return str(user)
 
 
 @router.get("/slack/callback")
