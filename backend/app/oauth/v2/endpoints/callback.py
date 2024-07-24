@@ -30,6 +30,10 @@ async def oauth_callback(request: Request):
       is_enterprise_install = oauth_response.get("is_enterprise_install")
       installed_team = oauth_response.get("team") or {}
       installer = oauth_response.get("authed_user") or {}
+      print('-=-=-=-')
+      print(installer)
+      print(dir(installer))
+      print('-=-=-=-')
       incoming_webhook = oauth_response.get("incoming_webhook") or {}
       bot_token = oauth_response.get("access_token")
       # NOTE: oauth.v2.access doesn't include bot_id in response

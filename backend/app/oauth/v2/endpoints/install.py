@@ -1,17 +1,33 @@
 import os
 import html
 from slack_sdk.oauth import AuthorizeUrlGenerator
-from slack_sdk.oauth.installation_store import FileInstallationStore, Installation
-from slack_sdk.oauth.state_store import FileOAuthStateStore
+from slack_sdk.oauth.installation_store.sqlalchemy import SQLAlchemyInstallationStore
+from slack_sdk.oauth.state_store.sqlalchemy import SQLAlchemyOAuthStateStore
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 from backend.app.core.constants import bot_scopes, user_scopes
-from backend.app.core.init_settings import global_settings
+import sqlalchemy
+from sqlalchemy.engine import Engine
 
+
+engine: Engine = sqlalchemy.create_engine(os.getenv('DATABASE_URL'))
 # Issue and consume state parameter value on the server-side.
-state_store = FileOAuthStateStore(expiration_seconds=300, base_dir="./data")
+state_store = SQLAlchemyOAuthStateStore(
+  expiration_seconds=300, 
+  engine=engine,
+)
+
 # Persist installation data and lookup it by IDs.
-installation_store = FileInstallationStore(base_dir="./data")
+installation_store = SQLAlchemyInstallationStore(
+  client_id=os.getenv('SLACK_CLIENT_ID'),
+  engine=engine,
+)
+
+try:
+  engine.execute("select count(*) from slack_bots")
+except Exception as e:
+  installation_store.metadata.create_all(engine)
+  state_store.metadata.create_all(engine)
 
 # Build https://slack.com/oauth/v2/authorize with sufficient query parameters
 authorize_url_generator = AuthorizeUrlGenerator(
