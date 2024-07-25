@@ -14,3 +14,4 @@ aioredis
 slack_sdk
 alembic
 sqlmodel
+slack_bolt
