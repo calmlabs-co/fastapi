@@ -9,5 +9,5 @@ class Summary(SQLModel, table=True):
   id: uuid.UUID = Field(default=uuid.uuid4, primary_key=True)
   created_at: datetime = Field(default=datetime.now)
   user_id: uuid.UUID = Field(foreign_key="users.id")
-  content: Optional[dict] = Field(nullable=True, sa_type=JSON)
+  content: Optional[dict] = Field(nullable=False, sa_type=JSON)
 
