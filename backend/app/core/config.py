@@ -7,9 +7,6 @@ class Settings(BaseSettings):
   APP_NAME: str = "Ketchup"
   APP_VERSION: str = "0.1.0"
 
-  # class Config:
-  #   case_sensitive = True
-
   @property
   def DATABASE_URL(self):
     url =  os.getenv('DATABASE_URL', '')
@@ -34,12 +31,6 @@ class Settings(BaseSettings):
 class DevSettings(Settings):
   # Environment mode: 'dev' or 'prod'
   ENV_MODE: str = 'dev'
-
-  # Database settings for development
-  from dotenv import load_dotenv
-
-  load_dotenv()
-  model_config = SettingsConfigDict(env_file=".env", extra='allow')
 
 
 class ProdSettings(Settings):
