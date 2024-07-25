@@ -28,6 +28,11 @@ async def get_user_by_slack_user_id(slack_user_id: str, db = Depends(get_sync_db
   user = db.scalars(statement).first()
   return user
 
+async def delete_current_installation_if_installation_exists(user_id: str):
+  installation = installation_store.get_by_user_id(user_id)
+  installation_store.delete_all(user_id)
+  return installation
+
 @router.get("/slack/callback")
 async def oauth_callback(request: Request):
   code = request.query_params.get("code")
@@ -35,6 +40,7 @@ async def oauth_callback(request: Request):
   if code:
     if state_store.consume(state):
       oauth_response = await complete_installation(code)
+      delete_current_installation_if_installation_exists(oauth_response.get("authed_user").get("id"))
       installation = create_installation(oauth_response)
       installation_store.save(installation)
       await create_user_and_link_to_slack(installation.user_id)
@@ -72,24 +78,24 @@ def create_installation(oauth_response: dict) -> Installation:
         enterprise_url = auth_test.get("url")
 
   installation = Installation(
-      app_id=oauth_response.get("app_id"),
-      enterprise_id=installed_enterprise.get("id"),
-      enterprise_name=installed_enterprise.get("name"),
-      enterprise_url=enterprise_url,
-      team_id=installed_team.get("id"),
-      team_name=installed_team.get("name"),
-      bot_token=bot_token,
-      bot_id=bot_id,
-      bot_user_id=oauth_response.get("bot_user_id"),
-      bot_scopes=oauth_response.get("scope"),  # comma-separated string
-      user_id=installer.get("id"),
-      user_token=installer.get("access_token"),
-      user_scopes=installer.get("scope"),  # comma-separated string
-      incoming_webhook_url=incoming_webhook.get("url"),
-      incoming_webhook_channel=incoming_webhook.get("channel"),
-      incoming_webhook_channel_id=incoming_webhook.get("channel_id"),
-      incoming_webhook_configuration_url=incoming_webhook.get("configuration_url"),
-      is_enterprise_install=is_enterprise_install,
-      token_type=oauth_response.get("token_type"),
+    app_id=oauth_response.get("app_id"),
+    enterprise_id=installed_enterprise.get("id"),
+    enterprise_name=installed_enterprise.get("name"),
+    enterprise_url=enterprise_url,
+    team_id=installed_team.get("id"),
+    team_name=installed_team.get("name"),
+    bot_token=bot_token,
+    bot_id=bot_id,
+    bot_user_id=oauth_response.get("bot_user_id"),
+    bot_scopes=oauth_response.get("scope"),  # comma-separated string
+    user_id=installer.get("id"),
+    user_token=installer.get("access_token"),
+    user_scopes=installer.get("scope"),  # comma-separated string
+    incoming_webhook_url=incoming_webhook.get("url"),
+    incoming_webhook_channel=incoming_webhook.get("channel"),
+    incoming_webhook_channel_id=incoming_webhook.get("channel_id"),
+    incoming_webhook_configuration_url=incoming_webhook.get("configuration_url"),
+    is_enterprise_install=is_enterprise_install,
+    token_type=oauth_response.get("token_type"),
   )
   return installation
