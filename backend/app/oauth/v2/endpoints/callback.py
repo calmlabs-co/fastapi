@@ -29,9 +29,7 @@ async def get_user_by_slack_user_id(slack_user_id: str, db = Depends(get_sync_db
   return user
 
 async def delete_current_installation_if_installation_exists(user_id: str):
-  installation = installation_store.get_by_user_id(user_id)
-  installation_store.delete_all(user_id)
-  return installation
+  return installation_store.delete_installation(user_id=user_id)
 
 @router.get("/slack/callback")
 async def oauth_callback(request: Request):
