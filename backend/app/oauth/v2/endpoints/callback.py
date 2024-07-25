@@ -14,7 +14,7 @@ from sqlmodel import select
 router = APIRouter()
 
 async def create_user_and_link_to_slack(slack_user_id: str,  db = Depends(get_sync_db)):
-  user = get_user_by_slack_user_id(slack_user_id, db)
+  user = await get_user_by_slack_user_id(slack_user_id, db)
   if user:
     print("User already exists")
   else:
