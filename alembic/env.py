@@ -23,7 +23,6 @@ if config.config_file_name is not None:
 from sqlmodel import SQLModel
 from alembic import context
 from backend.app.models.message import Message
-from backend.app.models.oauth_token import OAuthToken
 from backend.app.models.user import User
 from backend.app.models.summary import Summary
 

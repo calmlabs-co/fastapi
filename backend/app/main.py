@@ -13,6 +13,7 @@ from backend.app.dependencies.database import init_db, AsyncSessionLocal
 from backend.app.crud.message import create_message_dict_async
 from backend.data.init_data import models_data
 from backend.app.oauth.v2.endpoints import install, callback
+from backend.app.api.v1.endpoints import users
 
 
 @asynccontextmanager
@@ -62,6 +63,7 @@ app.add_middleware(SessionMiddleware,
 app.include_router(base.router, prefix="", tags=["main"])
 app.include_router(doc.router, prefix="", tags=["doc"])
 app.include_router(message.router, prefix="/api/v1", tags=["message"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["user_settings"])
 app.include_router(install.router, prefix="/oauth/v2", tags=["install"])
 app.include_router(callback.router, prefix="/oauth/v2", tags=["callback"])
 
