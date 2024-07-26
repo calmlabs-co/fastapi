@@ -83,6 +83,29 @@ def open_change_settings_modal(ack, shortcut, client):
               "block_id": "main_settings",
               "element": {
                 "type": "checkboxes",
+                "initial_options": [
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "The Direct Messages that I am in",
+                    },
+                    "value": "direct_messages"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Messages that I am directly mentioned in",
+                    },
+                    "value": "direct_mentions"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Messages that I am mentioned in via a User Group",
+                    },
+                    "value": "user_group_mentions"
+                  }
+                ],
                 "options": [
                   {
                     "text": {
@@ -146,6 +169,113 @@ def open_change_settings_modal(ack, shortcut, client):
             },
             {
               "type": "divider"
+            },
+            {
+              "type": "section",
+              "block_id": "days_to_send",
+              "text": {
+                "type": "mrkdwn",
+                "text": ":timer_clock: *How often and when would you like to receive the summary?*"
+              },
+              "accessory": {
+                "type": "multi_static_select",
+                "placeholder": {
+                  "type": "plain_text",
+                  "text": "Select days"
+                },
+                "initial_options": [
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Monday",
+                    },
+                    "value": "monday"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Tuesday"
+                    },
+                    "value": "tuesday"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Wednesday"
+                    },
+                    "value": "wednesday"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Thursday"
+                    },
+                    "value": "thursday"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Friday"
+                    },
+                    "value": "friday"
+                  }
+                ],
+                "options": [
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Monday",
+                    },
+                    "value": "monday"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Tuesday"
+                    },
+                    "value": "tuesday"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Wednesday"
+                    },
+                    "value": "wednesday"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Thursday"
+                    },
+                    "value": "thursday"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Friday"
+                    },
+                    "value": "friday"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "section",
+              "block_id": "time_to_send",
+              "text": {
+                "type": "mrkdwn",
+                "text": "Time"
+              },
+              "accessory": {
+                "type": "timepicker",
+                "timezone": "America/Los_Angeles",
+                "action_id": "timepicker123",
+                "initial_time": "09:00",
+                "placeholder": {
+                  "type": "plain_text",
+                  "text": "Select a time"
+                }
+              }
             }
           ]
         }
@@ -179,13 +309,13 @@ def handle_submission(ack, body, client, view, logger):
     try:
       user = callback.update_user_settings(user_id, validated_settings)
       user_settings = user.slack_installation_settings
-    except e:
+    except Exception as e:
       logger.exception(f"Failed to update user settings")
 
     try:
       # bring user back to home view with updated settings
       publish_home_view(user_id, user_settings, client, logger)
-    except e:
+    except Exception as e:
       logger.exception(f"Failed to post a message {e}")
 
 
@@ -321,7 +451,6 @@ def update_home_tab(client, event, logger):
     publish_home_view(user_id, user_settings, client, logger)
   except Exception as e:
     logger.error(f"Error publishing home tab: {e}")
-
 
 
 # Start of FastAPI routes
