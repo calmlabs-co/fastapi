@@ -46,6 +46,13 @@ async def oauth_callback(request: Request):
   error = request.query_params.get("error", "")
   raise HTTPException(status_code=400, detail=f"Something is wrong with the installation (error: {html.escape(error)}")
 
+async def get_installation(user_id: str, team_id: str, db = Depends(get_sync_db)):
+  statement = select(Installation).filter_by(user_id=user_id, team_id=team_id)
+  installation = db.scalars(statement).first()
+  if not installation:
+    raise HTTPException(status_code=404, detail="Installation not found")
+  return installation
+
 async def complete_installation(code: str) -> dict:
   client = WebClient()
   oauth_response = client.oauth_v2_access(

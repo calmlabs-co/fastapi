@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
   init_db()
   yield
 
-app = FastAPI(lifespan=lifespan)
+# Start of Slack Bolt setup
 slack_bolt_app = App(
   token=os.environ.get("SLACK_BOT_TOKEN"),
   signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
@@ -54,6 +54,211 @@ def handle_app_mention_events(event, say, logger):
   logger.info(event)
   say("App mention!! 👋")
 
+# The open_modal shortcut listens to a shortcut with the callback_id "change_settings_open_modal"
+@slack_bolt_app.shortcut('change_settings_open_modal')
+def open_change_settings_modal(ack, shortcut, client):
+    # Acknowledge the shortcut request
+    ack()
+    # Call the views_open method using the built-in WebClient
+    client.views_open(
+        trigger_id=shortcut["trigger_id"],
+        # A simple view payload for a modal
+        view={
+            "type": "modal",
+            "title": {"type": "plain_text", "text": "My App"},
+            "close": {"type": "plain_text", "text": "Close"},
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "About the simplest modal you could conceive of :smile:\n\nMaybe <https://api.slack.com/reference/block-kit/interactive-components|*make the modal interactive*> or <https://api.slack.com/surfaces/modals/using#modifying|*learn more advanced modal use cases*>."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "Psssst this modal was designed using <https://api.slack.com/tools/block-kit-builder|*Block Kit Builder*>"
+                        }
+                    ]
+                }
+            ]
+        }
+    )
+
+@slack_bolt_app.view("change_settings")
+def handle_submission(ack, body, client, view, logger):
+    user_id = body["user"]["id"]
+    
+    # TODO: Validate the inputs
+    # Assume there's an input block with `input_c` as the block_id and `dreamy_input`
+    hopes_and_dreams = view["state"]["values"]["input_c"]["dreamy_input"]
+
+    validated_settings = {}
+    # errors = {}
+    # if hopes_and_dreams is not None and len(hopes_and_dreams) <= 5:
+    #     errors["input_c"] = "The value must be longer than 5 characters"
+    # if len(errors) > 0:
+    #     ack(response_action="errors", errors=errors)
+    #     return
+    
+    # Acknowledge the view_submission request and close the modal
+    ack()
+    
+    # Do whatever you want with the input data - here we're saving it to a DB
+    # then sending the user a verification of their submission
+    # TODO: update settings of the user
+    try:
+      user = callback.update_user_settings(user_id, validated_settings)
+      user_settings = user.slack_installation_settings
+    except e:
+      logger.exception(f"Failed to update user settings")
+    
+    try:
+      # bring user back to home view with updated settings
+      publish_home_view(user_id, user_settings, client, logger)
+    except e:
+      logger.exception(f"Failed to post a message {e}")
+
+def publish_home_view(user_id, user_settings, client, logger):
+   client.views_publish(
+      type="home",
+      user_id=user_id,
+      view={
+        "type": "home",
+        "blocks": [
+          {
+            "type": "header",
+            "text": {
+              "type": "plain_text",
+              "text": ":wave: Welcome to Ketchup!"
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "plain_text",
+              "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"
+            }
+          },
+          {
+            "type": "header",
+            "text": {
+              "type": "plain_text",
+              "text": "Your Current Settings"
+            }
+          },
+          {
+            "type": "divider"
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "plain_text",
+              "text": ":white_tick: I want to summarize my Direct messages."
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "plain_text",
+              "text": ":white_tick: I want to summarize the messages and threads that I am directly mentioned in."
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "plain_text",
+              "text": ":white_tick: I want to summarize the messages and threads that I indirectly mentioned via user groups."
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "plain_text",
+              "text": ":white_tick: I want to follow the following channels: #product, #engineering…"
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "plain_text",
+              "text": ":white_tick: I want to follow the following teammates: @abc"
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "plain_text",
+              "text": ":timer: I will receive the summaries via DM on: \nMonday, Tuesday, Wednesday, Thursday, Friday @ 9:00AM"
+            }
+          },
+          {
+            "type": "actions",
+            "elements": [
+              {
+                "type": "button",
+                "text": {
+                  "type": "plain_text",
+                  "text": ":gear: Change Settings",
+                },
+                "action_id": "change_settings_open_modal"
+              }
+            ]
+          },
+          {
+            "type": "header",
+            "text": {
+              "type": "plain_text",
+              "text": "Other actions"
+            }
+          },
+          {
+            "type": "actions",
+            "elements": [
+              {
+                "type": "button",
+                "text": {
+                  "type": "plain_text",
+                  "text": ":heavy_plus_symbol: Invite Teammates",
+                },
+                "action_id": "invite_teammates_open_modal"
+              },
+              {
+                "type": "button",
+                "text": {
+                  "type": "plain_text",
+                  "text": ":question: Give us Feedback",
+                },
+                "action_id": "give-feedback"
+              }
+            ]
+          }
+        ]
+      }
+    )
+
+@slack_bolt_app.event("app_home_opened")
+def update_home_tab(client, event, logger):
+  logger.info(event)
+  user_id = event["user"]
+
+  try:
+    # get user settings
+    user = callback.get_user_by_slack_user_id(user_id)
+    user_settings = user.slack_installation_settings
+    
+    # publish home view
+    publish_home_view(user_id, user_settings, client, logger)
+  except Exception as e:
+    logger.error(f"Error publishing home tab: {e}")
+
+
+
+# Start of FastAPI routes
+app = FastAPI(lifespan=lifespan)
 @app.post("/slack/events")
 async def handle_slack_events(request: Request, logger):
   json = await request.json()
