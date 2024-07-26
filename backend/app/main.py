@@ -115,12 +115,13 @@ def handle_submission(ack, body, client, view, logger):
       user_settings = user.slack_installation_settings
     except e:
       logger.exception(f"Failed to update user settings")
-    
+
     try:
       # bring user back to home view with updated settings
       publish_home_view(user_id, user_settings, client, logger)
     except e:
       logger.exception(f"Failed to post a message {e}")
+
 
 def publish_home_view(user_id, user_settings, client, logger):
    client.views_publish(
@@ -263,8 +264,8 @@ app = FastAPI(lifespan=lifespan)
 async def handle_slack_events(request: Request, logger):
   json = await request.json()
   logger.info(json)
-  print(json)
-  return {"message": "ok"}
+  
+  return await slack_bolt_app.handle(request)
 
 # Frontend
 templates = Jinja2Templates(directory="frontend/login/templates")
