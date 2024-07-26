@@ -64,27 +64,90 @@ def open_change_settings_modal(ack, shortcut, client):
         trigger_id=shortcut["trigger_id"],
         # A simple view payload for a modal
         view={
-            "type": "modal",
-            "title": {"type": "plain_text", "text": "My App"},
-            "close": {"type": "plain_text", "text": "Close"},
-            "blocks": [
-                {
-                    "type": "section",
+          "title": {
+            "type": "plain_text",
+            "text": "Ketchup Settings"
+          },
+          "submit": {
+            "type": "plain_text",
+            "text": "Submit",
+          },
+          "type": "modal",
+          "close": {
+            "type": "plain_text",
+            "text": "Cancel",
+          },
+          "blocks": [
+            {
+              "type": "input",
+              "block_id": "main_settings",
+              "element": {
+                "type": "checkboxes",
+                "options": [
+                  {
                     "text": {
-                        "type": "mrkdwn",
-                        "text": "About the simplest modal you could conceive of :smile:\n\nMaybe <https://api.slack.com/reference/block-kit/interactive-components|*make the modal interactive*> or <https://api.slack.com/surfaces/modals/using#modifying|*learn more advanced modal use cases*>."
-                    }
-                },
-                {
-                    "type": "context",
-                    "elements": [
-                        {
-                            "type": "mrkdwn",
-                            "text": "Psssst this modal was designed using <https://api.slack.com/tools/block-kit-builder|*Block Kit Builder*>"
-                        }
-                    ]
+                      "type": "plain_text",
+                      "text": "The Direct Messages that I am in",
+                    },
+                    "value": "direct_messages"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Messages that I am directly mentioned in",
+                    },
+                    "value": "direct_mentions"
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Messages that I am mentioned in via a User Group",
+                    },
+                    "value": "user_group_mentions"
+                  }
+                ]
+              },
+              "label": {
+                "type": "plain_text",
+                "text": "Tick the checkboxes on what you want to get a summary of:",
+              }
+            },
+            {
+              "type": "section",
+              "block_id": "followed_channels",
+              "text": {
+                "type": "mrkdwn",
+                "text": ":speech_balloon: *Channels I want to follow*"
+              },
+              "accessory": {
+                "type": "multi_channels_select",
+                "max_selected_items": 10,
+                "placeholder": {
+                  "type": "plain_text",
+                  "text": "Select channels"
                 }
-            ]
+              }
+            },
+            {
+              "type": "section",
+              "block_id": "followed_users",
+              "text": {
+                "type": "mrkdwn",
+                "text": ":busts_in_silhouette: *People I want to follow*"
+              },
+              "accessory": {
+                "type": "multi_users_select",
+                "max_selected_items": 5,
+                "placeholder": {
+                  "type": "plain_text",
+                  "text": "Select users"
+                }
+              }
+            },
+            {
+              "type": "divider"
+            }
+          ]
         }
     )
 
@@ -94,7 +157,10 @@ def handle_submission(ack, body, client, view, logger):
     
     # TODO: Validate the inputs
     # Assume there's an input block with `input_c` as the block_id and `dreamy_input`
-    hopes_and_dreams = view["state"]["values"]["input_c"]["dreamy_input"]
+    logger.info(view['state']['values'])
+    main_settings = view["state"]["values"]["main_settings"]
+    followed_channels = view["state"]["values"]["followed_channels"]
+    followed_users = view["state"]["values"]["followed_users"]
 
     validated_settings = {}
     # errors = {}

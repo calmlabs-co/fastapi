@@ -28,6 +28,17 @@ async def get_user_by_slack_user_id(slack_user_id: str, db = Depends(get_sync_db
   user = db.scalars(statement).first()
   return user
 
+async def update_user_settings(user_id: str, settings: dict, db = Depends(get_sync_db)):
+  user = await get_user_by_slack_user_id(user_id, db)
+  if not user:
+    raise HTTPException(status_code=404, detail="User not found")
+  
+  user.slack_installation_settings = settings
+  db.add(user)
+  db.commit()
+  return user
+
+
 @router.get("/slack/callback")
 async def oauth_callback(request: Request):
   code = request.query_params.get("code")
