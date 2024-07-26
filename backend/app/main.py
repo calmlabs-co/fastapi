@@ -326,12 +326,14 @@ def update_home_tab(client, event, logger):
 
 # Start of FastAPI routes
 app = FastAPI(lifespan=lifespan)
+
 @app.post("/slack/events")
 async def handle_slack_events(request: Request, logger):
   json = await request.json()
   logger.info(json)
+  print(json)
   
-  return await slack_bolt_app.handle(request)
+  return await app_handler.handle(request)
 
 # Frontend
 templates = Jinja2Templates(directory="frontend/login/templates")
