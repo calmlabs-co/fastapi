@@ -14,8 +14,8 @@ from backend.app.crud.message import create_message_dict_async
 from backend.data.init_data import models_data
 from backend.app.oauth.v2.endpoints import install, callback
 from backend.app.api.v1.endpoints import users
-from slack_bolt.adapter.fastapi import SlackRequestHandler
-from slack_bolt import App
+from slack_bolt.async_app import AsyncApp
+from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,11 +24,11 @@ async def lifespan(app: FastAPI):
   yield
 
 # Start of Slack Bolt setup
-slack_bolt_app = App(
+slack_bolt_app = AsyncApp(
   token=os.environ.get("SLACK_BOT_TOKEN"),
   signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
-app_handler = SlackRequestHandler(slack_bolt_app)
+app_handler = AsyncSlackRequestHandler(slack_bolt_app)
 
 @slack_bolt_app.message("hello")
 def handle_message_event(message, say):
