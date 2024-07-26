@@ -16,3 +16,4 @@ alembic
 sqlmodel
 slack_bolt
 openai
+aiohttp
