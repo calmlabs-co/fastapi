@@ -509,6 +509,6 @@ if __name__ == "__main__":
     app="backend.app.main:app",
     host = args.host,
     port=int(os.getenv("PORT", 5000)),
-    reload=args.mode == "dev"  # Enables auto-reloading in development mode
+    reload=args.mode == "dev",  # Enables auto-reloading in development mode
     log_level="debug"
   )
