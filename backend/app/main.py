@@ -519,6 +519,14 @@ app.include_router(callback.router, prefix="/oauth/v2", tags=["callback"])
 async def handle_slack_events(request: Request):
   return await app_handler.handle(request)
 
+@app.get("/slack/install")
+async def install(req: Request):
+    return await app_handler.handle(req)
+
+@app.get("/slack/oauth_redirect")
+async def oauth_redirect(req: Request):
+    return await app_handler.handle(req)
+
 from slack_sdk import WebClient
 client = WebClient()
 
