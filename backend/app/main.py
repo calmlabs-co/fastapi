@@ -36,7 +36,9 @@ slack_bolt_app = App(
   oauth_settings=OAuthSettings(
     client_id=os.environ.get("SLACK_CLIENT_ID"),
     client_secret=os.environ.get("SLACK_CLIENT_SECRET"),
-    state_store=install.oauth_state_store
+    state_store=install.oauth_state_store,
+    scopes=install.bot_scopes,
+    user_scopes=install.user_scopes
   ),
   installation_store=install.installation_store
 )
