@@ -2,7 +2,7 @@ from slack_sdk.web import WebClient
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import PlainTextResponse
 from slack_sdk.web import WebClient
-from backend.app.oauth.v2.endpoints.install import state_store, installation_store
+from backend.app.oauth.v2.endpoints.install import oauth_state_store, installation_store
 from slack_sdk.oauth.installation_store import Installation
 from backend.app.models.user import User
 from backend.app.dependencies.database import get_sync_db
@@ -44,7 +44,7 @@ async def oauth_callback(request: Request):
   code = request.query_params.get("code")
   state = request.query_params.get("state")
   if code:
-    if state_store.consume(state):
+    if oauth_state_store.consume(state):
       oauth_response = await complete_installation(code)
       installation_store.delete_installation(user_id=oauth_response.get("authed_user").get("id"), enterprise_id=oauth_response.get("enterprise").get("id"), team_id=oauth_response.get("team").get("id"))
       installation = create_installation(oauth_response)

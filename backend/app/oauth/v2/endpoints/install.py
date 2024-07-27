@@ -12,7 +12,7 @@ from sqlalchemy.engine import Engine
 
 engine: Engine = sqlalchemy.create_engine(os.getenv('DATABASE_URL'))
 # Issue and consume state parameter value on the server-side.
-state_store = SQLAlchemyOAuthStateStore(
+oauth_state_store = SQLAlchemyOAuthStateStore(
   expiration_seconds=300, 
   engine=engine,
 )
@@ -27,7 +27,7 @@ try:
   engine.execute("select count(*) from slack_bots")
 except Exception as e:
   installation_store.metadata.create_all(engine)
-  state_store.metadata.create_all(engine)
+  oauth_state_store.metadata.create_all(engine)
 
 # Build https://slack.com/oauth/v2/authorize with sufficient query parameters
 authorize_url_generator = AuthorizeUrlGenerator(
@@ -42,7 +42,7 @@ router = APIRouter()
 @router.get("/slack/install", response_class=HTMLResponse)
 async def oauth_start():
   # Generate a random value and store it on the server-side
-  state = state_store.issue()
+  state = oauth_state_store.issue()
   # https://slack.com/oauth/v2/authorize?state=(generated value)&client_id={client_id}&scope=app_mentions:read,chat:write&user_scope=search:read
   url = authorize_url_generator.generate(state)
   return HTMLResponse(content=f'<a href="{html.escape(url)}">'

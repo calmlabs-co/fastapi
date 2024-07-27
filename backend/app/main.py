@@ -15,7 +15,12 @@ from backend.data.init_data import models_data
 from backend.app.oauth.v2.endpoints import install, callback
 from backend.app.api.v1.endpoints import users
 from slack_bolt.adapter.fastapi import SlackRequestHandler
+from slack_bolt.oauth.oauth_settings import OAuthSettings
+from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_bolt import App
+
+# Create a logger
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,9 +31,17 @@ async def lifespan(app: FastAPI):
 # Start of Slack Bolt setup
 slack_bolt_app = App(
   token=os.environ.get("SLACK_BOT_TOKEN"),
-  signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
+  signing_secret=os.environ.get("SLACK_SIGNING_SECRET"),
+  logger=logger,
+  oauth_settings=OAuthSettings(
+    client_id=os.environ.get("SLACK_CLIENT_ID"),
+    client_secret=os.environ.get("SLACK_CLIENT_SECRET"),
+    state_store=install.oauth_state_store
+  ),
+  installation_store=install.installation_store
 )
-app_handler = SlackRequestHandler(slack_bolt_app)
+# app_handler = SlackRequestHandler(slack_bolt_app)
+app_handler = SocketModeHandler(slack_bolt_app, os.environ.get("SLACK_APP_TOKEN")).connect()
 
 @slack_bolt_app.message("hello")
 def handle_message_event(message, say):
@@ -48,8 +61,14 @@ def handle_message_event(message, say):
     text=f"Hey there <@{message['user']}>!"
   )
 
+@slack_bolt_app.event("message")
+def handle_message(body, say, logger):
+  logger.info(body)
+  say("Message!! 👋")
+
 @slack_bolt_app.event("app_mention")
 def handle_app_mention_events(body, say, logger):
+  print(body)
   logger.info(body)
   say("App mention!! 👋")
 
@@ -509,6 +528,5 @@ if __name__ == "__main__":
     app="backend.app.main:app",
     host = args.host,
     port=int(os.getenv("PORT", 5000)),
-    reload=args.mode == "dev",  # Enables auto-reloading in development mode
-    log_level="debug"
+    reload=args.mode == "dev"  # Enables auto-reloading in development mode
   )
