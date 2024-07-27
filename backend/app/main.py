@@ -40,8 +40,8 @@ slack_bolt_app = App(
   ),
   installation_store=install.installation_store
 )
-# app_handler = SlackRequestHandler(slack_bolt_app)
-app_handler = SocketModeHandler(slack_bolt_app, os.environ.get("SLACK_APP_TOKEN")).connect()
+app_handler = SlackRequestHandler(slack_bolt_app)
+# app_handler = SocketModeHandler(slack_bolt_app, os.environ.get("SLACK_APP_TOKEN")).connect()
 
 @slack_bolt_app.message("hello")
 def handle_message_event(message, say):
@@ -521,11 +521,11 @@ async def handle_slack_events(request: Request):
 
 @app.get("/slack/install")
 async def install(req: Request):
-    return await app_handler.handle(req)
+  return await app_handler.handle(req)
 
 @app.get("/slack/oauth_redirect")
 async def oauth_redirect(req: Request):
-    return await app_handler.handle(req)
+  return await app_handler.handle(req)
 
 from slack_sdk import WebClient
 client = WebClient()
