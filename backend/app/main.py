@@ -1,6 +1,7 @@
+import logging
 import os
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
@@ -10,7 +11,6 @@ from contextlib import asynccontextmanager
 from backend.app.core.init_settings import args, global_settings
 from backend.app.api.v1.endpoints import message, doc, base
 from backend.app.dependencies.database import init_db, AsyncSessionLocal
-from backend.app.crud.message import create_message_dict_async
 from backend.data.init_data import models_data
 from backend.app.oauth.v2.endpoints import install, callback
 from backend.app.api.v1.endpoints import users
@@ -452,17 +452,8 @@ def update_home_tab(client, event, logger):
   except Exception as e:
     logger.error(f"Error publishing home tab: {e}")
 
-
 # Start of FastAPI routes
 app = FastAPI(lifespan=lifespan)
-
-@app.post("/slack/events")
-async def handle_slack_events(request: Request, logger):
-  json = await request.json()
-  logger.info(json)
-  print(json)
-  
-  return await app_handler.handle(request)
 
 # Frontend
 templates = Jinja2Templates(directory="frontend/login/templates")
@@ -505,6 +496,10 @@ app.include_router(message.router, prefix="/api/v1", tags=["message"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["user_settings"])
 app.include_router(install.router, prefix="/oauth/v2", tags=["install"])
 app.include_router(callback.router, prefix="/oauth/v2", tags=["callback"])
+
+@app.post("/slack/events")
+async def handle_slack_events(request: Request):
+  return await app_handler.handle(request)
 
 from slack_sdk import WebClient
 client = WebClient()
