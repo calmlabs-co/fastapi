@@ -49,9 +49,8 @@ def handle_message_event(message, say):
   )
 
 @slack_bolt_app.event("app_mention")
-def handle_app_mention_events(event, say, logger):
-  print(event)
-  logger.info(event)
+def handle_app_mention_events(body, say, logger):
+  logger.info(body)
   say("App mention!! 👋")
 
 # The open_modal shortcut listens to a shortcut with the callback_id "change_settings_open_modal"
@@ -511,4 +510,5 @@ if __name__ == "__main__":
     host = args.host,
     port=int(os.getenv("PORT", 5000)),
     reload=args.mode == "dev"  # Enables auto-reloading in development mode
+    log_level="debug"
   )
