@@ -519,7 +519,7 @@ app.include_router(callback.router, prefix="/oauth/v2", tags=["callback"])
 
 @app.post("/slack/events")
 async def handle_slack_events(request: Request, db = Depends(get_sync_db)):
-  return await app_handler.handle(request, {"db": db}))
+  return await app_handler.handle(request, {"db": db})
 
 @app.get("/slack/install")
 async def install(req: Request, db = Depends(get_sync_db)):
