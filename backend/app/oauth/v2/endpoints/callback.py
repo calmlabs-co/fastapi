@@ -40,7 +40,7 @@ async def update_user_settings(user_id: str, settings: dict, db = Depends(get_sy
 
 
 @router.get("/slack/callback")
-async def oauth_callback(request: Request):
+async def oauth_callback(request: Request, db = Depends(get_sync_db)):
   code = request.query_params.get("code")
   state = request.query_params.get("state")
   if code:

@@ -1,7 +1,7 @@
 import logging
 import os
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from backend.app.core.init_settings import args, global_settings
 from backend.app.api.v1.endpoints import message, doc, base
-from backend.app.dependencies.database import init_db, AsyncSessionLocal
+from backend.app.dependencies.database import get_sync_db, init_db, AsyncSessionLocal
 from backend.data.init_data import models_data
 from backend.app.oauth.v2.endpoints import install, callback
 from backend.app.api.v1.endpoints import users
@@ -518,15 +518,15 @@ app.include_router(install.router, prefix="/oauth/v2", tags=["install"])
 app.include_router(callback.router, prefix="/oauth/v2", tags=["callback"])
 
 @app.post("/slack/events")
-async def handle_slack_events(request: Request):
+async def handle_slack_events(request: Request, db = Depends(get_sync_db)):
   return await app_handler.handle(request)
 
 @app.get("/slack/install")
-async def install(req: Request):
+async def install(req: Request, db = Depends(get_sync_db)):
   return await app_handler.handle(req)
 
 @app.get("/slack/oauth_redirect")
-async def oauth_redirect(req: Request):
+async def oauth_redirect(req: Request, db = Depends(get_sync_db)):
   return await app_handler.handle(req)
 
 from slack_sdk import WebClient
