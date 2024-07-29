@@ -302,7 +302,7 @@ def open_change_settings_modal(ack, shortcut, client):
     )
 
 @slack_bolt_app.view("change_settings")
-def handle_submission(ack, body, client, view, logger):
+def handle_submission(ack, body, client, view, logger, context):
     user_id = body["user"]["id"]
     
     # TODO: Validate the inputs
@@ -327,7 +327,7 @@ def handle_submission(ack, body, client, view, logger):
     # then sending the user a verification of their submission
     # TODO: update settings of the user
     try:
-      user = callback.update_user_settings(user_id, validated_settings)
+      user = callback.update_user_settings(user_id, validated_settings, context["db"])
       user_settings = user.slack_installation_settings
     except Exception as e:
       logger.exception(f"Failed to update user settings")
@@ -458,13 +458,13 @@ def publish_home_view(user_id, user_settings, client, logger):
     )
 
 @slack_bolt_app.event("app_home_opened")
-def update_home_tab(client, event, logger):
+def update_home_tab(client, event, logger, context):
   logger.info(event)
   user_id = event["user"]
 
   try:
     # get user settings
-    user = callback.get_user_by_slack_user_id(user_id)
+    user = callback.get_user_by_slack_user_id(user_id, context["db"])
     user_settings = user.slack_installation_settings
     
     # publish home view
@@ -519,15 +519,15 @@ app.include_router(callback.router, prefix="/oauth/v2", tags=["callback"])
 
 @app.post("/slack/events")
 async def handle_slack_events(request: Request, db = Depends(get_sync_db)):
-  return await app_handler.handle(request)
+  return await app_handler.handle(request, {"db": db}))
 
 @app.get("/slack/install")
 async def install(req: Request, db = Depends(get_sync_db)):
-  return await app_handler.handle(req)
+  return await app_handler.handle(req, {"db": db})
 
 @app.get("/slack/oauth_redirect")
 async def oauth_redirect(req: Request, db = Depends(get_sync_db)):
-  return await app_handler.handle(req)
+  return await app_handler.handle(req, {"db": db})
 
 from slack_sdk import WebClient
 client = WebClient()

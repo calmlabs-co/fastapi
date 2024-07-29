@@ -2,16 +2,18 @@
 # Scopes that act on behalf of the bot.
 
 bot_scopes = [
-  "channels:history",  # View messages and other content in public channels that Ketchup has been added to
-  "channels:join",     # Join public channels in a workspace
-  "channels:read",     # View basic information about public channels in a workspace
-  "chat:write",        # Send messages as @Slack API Test
+  "channels:history",      # View messages and other content in public channels that Ketchup has been added to
+  "channels:join",         # Join public channels in a workspace
+  "channels:read",         # View basic information about public channels in a workspace
+  "chat:write",            # Send messages as @Slack API Test
   "chat:write.customize",  # Send messages as @Slack API Test with a customized username and avatar
   "chat:write.public",     # Send messages to channels @Slack API Test isn't a member of
-  "commands",          # Add shortcuts and/or slash commands that people can use
-  "groups:history",    # View messages and other content in private channels that Ketchup has been added to
-  "groups:read",       # View basic information about private channels that Ketchup has been added to
-  "users:read"         # View people in a workspace
+  "commands",              # Add shortcuts and/or slash commands that people can use
+  "groups:history",        # View messages and other content in private channels that Ketchup has been added to
+  "groups:read",           # View basic information about private channels that Ketchup has been added to
+  "users:read",            # View people in a workspace,
+  "im:history",            # View messages and other content in direct messages that Ketchup has been added to
+  "mpim:history",          # View messages and other content in group direct messages that Ketchup has been added to
 ]
 
 
